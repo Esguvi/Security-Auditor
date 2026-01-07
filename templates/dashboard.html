@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app_name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="icon" type="image/png" href="/static/img/favicon.ico">
+</head>
+<body class="bg-dark text-light">
+
+<div class="container py-5">
+    <div class="text-center mb-4">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" height="60" alt="Logo">
+        <h1 class="mt-3">{{ app_name }}</h1>
+        <p class="text-secondary">Automated Security Analysis Platform</p>
+    </div>
+
+    <div class="audit-card mb-4">
+        <form method="post" id="scanForm">
+            <div class="mb-3">
+                <input type="text" class="form-control" name="target" placeholder="example.com" required>
+            </div>
+            <button type="submit" class="btn btn-danger w-100">Run Security Audit</button>
+        </form>
+
+        <!-- Loader -->
+        <div id="loader">
+            <div class="spinner"></div>
+            <p class="text-secondary mt-2">Running security audit...</p>
+        </div>
+    </div>
+
+    {% if report %}
+    <div class="results" id="auditContent">
+
+        <!-- Target -->
+        <h4>
+            Target: <span class="badge bg-danger">{{ report.target }}</span> 
+            {% if report.type %} <span class="badge bg-secondary">{{ report.type }}</span> {% endif %}
+        </h4>
+
+        <h4>Risk Score: {{ report.score }}/100</h4>
+        <div class="progress mb-4" style="height: 24px; border-radius: 12px;">
+            <div class="progress-bar 
+                        {% if report.score >= 70 %}bg-success
+                        {% elif report.score >= 40 %}bg-warning
+                        {% else %}bg-danger{% endif %}" 
+                role="progressbar" 
+                style="width: {{ report.score }}%;" 
+                aria-valuenow="{{ report.score }}" 
+                aria-valuemin="0" 
+                aria-valuemax="100">
+                {{ report.score }}%
+            </div>
+        </div>
+
+        <ul class="nav nav-tabs mb-3" id="auditTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="network-tab" data-bs-toggle="tab" data-bs-target="#network" type="button" role="tab">Network</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="headers-tab" data-bs-toggle="tab" data-bs-target="#headers" type="button" role="tab">Headers</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tls-tab" data-bs-toggle="tab" data-bs-target="#tls" type="button" role="tab">TLS</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="auditTabsContent">
+            <div class="tab-pane fade show active" id="network" role="tabpanel">
+                {% if report.ports %}
+                <ul class="list-group mb-3">
+                    {% for p in report.ports %}
+                    <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
+                        {{ p.port }} ({{ p.service }})
+                        <span class="{% if p.risk == 'LOW' %}risk-low{% elif p.risk == 'MEDIUM' %}risk-medium{% else %}risk-high{% endif %}">
+                            {{ p.risk }}
+                        </span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>No open ports detected.</p>
+                {% endif %}
+            </div>
+
+            <div class="tab-pane fade" id="headers" role="tabpanel">
+                {% if report.headers %}
+                <ul class="list-group mb-3">
+                    {% for h in report.headers %}
+                    <li class="list-group-item bg-transparent text-warning">{{ h }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>No security headers issues detected.</p>
+                {% endif %}
+            </div>
+
+            <div class="tab-pane fade" id="tls" role="tabpanel">
+                {% if report.tls %}
+                <p>{{ report.tls }}</p>
+                {% else %}
+                <p>TLS information not available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <a href="{{ url_for('export_pdf') }}" class="btn btn-outline-light w-100 mt-3">Export PDF</a>
+    {% endif %}
+
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>
