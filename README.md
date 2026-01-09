@@ -49,7 +49,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-4. **Define la variable de entorno para la clave secreta** (recomendado para producción):
+4. **(OPCIONAL) Define la variable de entorno para la clave secreta** (recomendado para producción):
 ```bash
 # Windows
 set FLASK_SECRET_KEY=mi_clave_super_secreta
