@@ -73,7 +73,7 @@
                 {% if report.ports %}
                 <ul class="list-group mb-3">
                     {% for p in report.ports %}
-                    <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
+                    <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center" style="color:white">
                         {{ p.port }} ({{ p.service }})
                         <span class="{% if p.risk == 'LOW' %}risk-low{% elif p.risk == 'MEDIUM' %}risk-medium{% else %}risk-high{% endif %}">
                             {{ p.risk }}
